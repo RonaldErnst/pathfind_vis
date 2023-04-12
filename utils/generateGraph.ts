@@ -1,7 +1,7 @@
-import { GridTile } from "@/contexts/GridContext";
+import { GraphType, GridTile } from "@/contexts/GridContext";
 
-export default function generateGraph(grid: GridTile[][]) {
-    const graph = new Map<String, Array<String>>();
+export default function generateGraph(grid: GridTile[][]): GraphType {
+    const graph = new Map<string, Array<string>>();
 
     for(let i = 0; i < grid.length; i++) {
         let row = grid[i]
@@ -14,7 +14,7 @@ export default function generateGraph(grid: GridTile[][]) {
 }
 
 function getAdjacentTiles(row: number, column: number, grid: GridTile[][]) {
-    const adjacentTiles = new Array<String>();
+    const adjacentTiles = new Array<string>();
 
     if(row > 0 && grid[row-1][column].type === "empty")
         adjacentTiles.push(`${row-1}-${column}`);

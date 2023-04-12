@@ -7,6 +7,7 @@ export default function createEmptyGrid(width: number, height: number): GridTile
                 row,
                 column,
                 type: "empty",
+                name: `${row}-${column}`
             } as GridTile;
         });
     });

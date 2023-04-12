@@ -1,17 +1,14 @@
 import calcAlgSteps from "@/utils/calcAlgSteps";
 import generateGraph from "@/utils/generateGraph";
+import getGridTile from "@/utils/getGridTile";
 import { createContext, Dispatch, FC, PropsWithChildren, SetStateAction, useContext, useMemo, useState } from "react";
-import { GridTile, useGrid } from "./GridContext";
+import { GridTile, GridTileColor, useGrid } from "./GridContext";
 
-export type PathFinderStep = {
-    grid: GridTile[][];
-}
+export type PathFinderStep = GridTileColor[][]
 
-export type AlgorithmType = "bfs" | "dfs" | "dijkstra" | "astar";
+export type AlgorithmType = "bfs" | "dfs" | "dijkstra" | "astar"
 
 export type PathFinderContextType = {
-    startGrid: GridTile[][];
-    graph: Map<String, Array<String>>;
     algorithm?: AlgorithmType;
     steps?: PathFinderStep[];
     currStep?: number;
@@ -30,15 +27,13 @@ export const usePathFinder = () => {
     return ctx;
 }
 
-export type PathFinderProps = {
-    startGrid: GridTile[][]
-}
-
 export const PathFinderProvider: FC<PropsWithChildren> = ({ children }) => {
-    const { grid, startTile, endTile } = useGrid();
-    const graph = useMemo(() => generateGraph(grid), [grid]);
+    const { graph, startTile, endTile, setGridState } = useGrid();
+    
     const [algorithm, setAlgorithm] = useState<AlgorithmType | undefined>();
     const [steps, setSteps] = useState<PathFinderStep[] | undefined>();
+
+    console.log("Graph changed", graph, algorithm); // TODO test if algorithm changes if grid changes (due to changes from algo steps)
 
     const calcSteps = () => {
         if(algorithm === undefined)
@@ -48,13 +43,13 @@ export const PathFinderProvider: FC<PropsWithChildren> = ({ children }) => {
         if(endTile === undefined)
             throw new Error("Goal grid tile must be defined");
 
-        const newSteps = calcAlgSteps(algorithm, grid, graph, `${startTile.row}-${startTile.column}`, `${endTile.row}-${endTile.column}`);
+        setGridState("algorithm");
+
+        const newSteps = calcAlgSteps(algorithm, graph, startTile, endTile);
         setSteps(newSteps);
     }
 
     const value: PathFinderContextType = {
-        startGrid: grid,
-        graph,
         algorithm,
         steps,
         setAlgorithm,
