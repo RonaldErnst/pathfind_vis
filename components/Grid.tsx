@@ -1,36 +1,39 @@
 import { GridTilePosition, useGrid, useGridTile } from "@/contexts/GridContext";
-import { useState } from "react";
 
 export default function Grid() {
-    const { width, height, grid } = useGrid();
+	const { width, height, grid } = useGrid();
 
 	return (
 		<div
 			style={{
-				gap: "4px",
 				display: "grid",
 				gridTemplateColumns: `repeat(${width}, minmax(16px, 1fr))`,
 				gridTemplateRows: `repeat(${height}, minmax(16px, 1fr))`,
 			}}
 			className="w-full h-full bg-slate-400 justify-center"
 		>
-			{grid.flat().map(({row, column}, i) => {
+			{grid.flat().map(({ row, column }, i) => {
 				return <GridTile key={i} row={row} column={column} />;
 			})}
 		</div>
 	);
 }
 
-function GridTile({row, column}: GridTilePosition) {
-	const { isWall, icon, color } = useGridTile(row, column);
+function GridTile({ row, column }: GridTilePosition) {
+	const { type, icon, color, setGridTileType } = useGridTile(row, column);
+
+	const handleOnClick = () => {
+		const newType = type === "wall" ? "empty" : "wall";
+		setGridTileType(newType);
+	};
 
 	return (
-		<div className="w-full h-full grid justify-center">
+		<div className="w-full h-full">
 			<div
-				className={`w-full h-full aspect-square border ${
-					isWall ? "bg-slate-600" : "bg-slate-200"
-				} hover:bg-slate-500`}
-				onClick={() => setIsWall((w) => !w)}
+				className={`w-full h-full aspect-square border border-blue-300 ${
+					type === "wall" ? "bg-slate-600" : "bg-slate-200"
+				} hover:bg-slate-400`}
+				onClick={handleOnClick}
 			></div>
 		</div>
 	);
