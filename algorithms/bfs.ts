@@ -1,7 +1,7 @@
 import { AlgorithmStep, GraphType } from "@/contexts/AlgorithmContext";
 import { GridTile } from "@/contexts/GridContext";
 
-export default function bfs(
+export default function bfsSteps(
 	grid: GridTile[][],
 	graph: GraphType,
 	start: GridTile,
@@ -9,26 +9,68 @@ export default function bfs(
 ) {
 	const steps: AlgorithmStep[] = [];
 
-	const visited = new Set(start.name);
-	const queue = [start.name];
+	const queue = [start];
+    const previous: Record<string, GridTile | null> = {[start.name]: null};
 
-	let currStep = grid.map((row) =>
-		row.map((col) => (col.type === "wall" ? "wall" : "unvisited"))
-	);
-	steps.push([...currStep]);
+    // Add starting empty grid point as first step[
+	let currStep = grid.flat().reduce<AlgorithmStep>((acc,tile) => ({...acc, [tile.name]: tile.type === "wall" ? "wall" : "unvisited"}), {})
+	steps.push(currStep);
 
 	while (queue.length > 0) {
 		let node = queue.shift()!;
 
-		let adjacentNodes = graph.get(node);
+        currStep = {
+            ...currStep,
+            [node.name]: "visiting"
+        }
+        steps.push(currStep);
+
+        if(node.name === end.name){
+            previous[end.name] = node;
+            currStep = {
+                ...currStep,
+                [node.name]: "visited"
+            }
+            steps.push(currStep);
+            break;
+        }
+
+		let adjacentNodes = graph.get(node.name);
 
 		adjacentNodes?.forEach((n) => {
-			if (visited.has(n)) return;
+			if (n.name in previous) return;
 
-			visited.add(n);
+			previous[n.name] = node;
 			queue.push(n);
+
+            currStep = {
+                ...currStep,
+                [n.name]: "queued"
+            }
 		});
+
+        currStep = {
+            ...currStep,
+            [node.name]: "visited"
+        }
+        steps.push(currStep);
 	}
+
+    // visualize the added path if there is a path
+    if(end.name in previous) {
+        let currNode: GridTile | null = end;
+        while(currNode !== null) {
+            currStep = {
+                ...currStep,
+                [currNode.name]: "path"
+            }
+
+            currNode = previous[currNode.name]
+        }
+
+        // Add the complete path
+        steps.push(currStep)
+    }
 
 	return steps;
 }

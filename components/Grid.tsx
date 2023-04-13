@@ -20,10 +20,10 @@ export default function Grid() {
 }
 
 function GridTile({ row, column }: GridTilePosition) {
-	const { type, icon, color, setGridTileType } = useGridTile(row, column);
+	const { type, setGridTileType, isStart, isEnd } = useGridTile(row, column);
 
 	const handleOnClick = () => {
-		const newType = type === "wall" ? "empty" : "wall";
+		const newType = type === "wall" ? "path" : "wall";
 		setGridTileType(newType);
 	};
 

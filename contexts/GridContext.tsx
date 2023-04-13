@@ -29,6 +29,7 @@ type GridContextType = {
 	width: number;
 	gridState: GridState;
 	grid: GridTile[][];
+    gridTileMap: Record<string, GridTile>,
     startTile?: GridTile;
     endTile?: GridTile;
 	setGrid: Dispatch<SetStateAction<GridTile[][]>>;
@@ -51,7 +52,7 @@ export function useGridTile(row: number, column: number) {
 
 	if (ctx === null) throw new Error("Grid Context is not accessible here");
 
-	const { height, width, grid, setGridTileType } = ctx;
+	const { height, width, grid, setGridTileType, startTile, endTile } = ctx;
 
 	if (row < 0 || row >= height)
 		throw new Error("Cannot get grid tile, row is out of bounds: " + row);
@@ -64,6 +65,8 @@ export function useGridTile(row: number, column: number) {
 	const gridTile = grid[row][column];
 	return {
 		...gridTile,
+        isStart: startTile === undefined? false : startTile.row === row && startTile.column === column,
+        isEnd: endTile === undefined? false : endTile.row === row && endTile.column === column,
 		setGridTileType: (type: GridTileType) =>
 			setGridTileType(row, column, type),
 	};
@@ -76,11 +79,12 @@ export const GridProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [grid, setGrid] = useState<GridTile[][]>(() =>
 		createEmptyGrid(width, height)
 	);
-    const [startTilePos, setStartTilePos] = useState<GridTilePosition | undefined>();
-    const [endTilePos, setEndTilePos] = useState<GridTilePosition | undefined>();
+    const [startTilePos, setStartTilePos] = useState<GridTilePosition | undefined>({row: 0, column: 0});
+    const [endTilePos, setEndTilePos] = useState<GridTilePosition | undefined>({row: height - 1, column: width - 1});
 
     const startTile = useMemo(() => startTilePos === undefined? undefined : grid[startTilePos?.row][startTilePos?.column], [startTilePos, grid]);
     const endTile = useMemo(() => endTilePos === undefined? undefined : grid[endTilePos?.row][endTilePos?.column], [endTilePos, grid]);
+    const gridTileMap = useMemo(() => grid.flat().reduce<Record<string, GridTile>>((acc, tile) => ({...acc, [tile.name]: tile}), {}), [grid]);
 
 	const setGridTileType = (
 		row: number,
@@ -103,6 +107,7 @@ export const GridProvider: FC<PropsWithChildren> = ({ children }) => {
 		width,
 		gridState,
 		grid,
+        gridTileMap,
         startTile,
         endTile,
 		setGridTileType,

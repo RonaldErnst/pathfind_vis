@@ -9,16 +9,17 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import { useGrid } from "./GridContext";
+import { GridTile, useGrid } from "./GridContext";
 
 export type GridTileColor =
 	| "unvisited"
+    | "queued"
 	| "visiting"
 	| "visited"
-	| "path"
+    | "path"
 	| "wall";
 
-export type AlgorithmStep = GridTileColor[][];
+export type AlgorithmStep = Record<string, GridTileColor>;
 
 export type AlgorithmType = "bfs" | "dfs" | "dijkstra" | "astar";
 
@@ -30,7 +31,7 @@ export type AlgorithmContextType = {
 	calcSteps: () => void;
 };
 
-export type GraphType = Map<string, Array<string>>;
+export type GraphType = Map<string, Array<GridTile>>;
 
 const AlgorithmContext = createContext<AlgorithmContextType | null>(null);
 
@@ -44,7 +45,7 @@ export const useAlgorithm = () => {
 };
 
 export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
-	const { grid, gridState, startTile, endTile, setGridState } = useGrid();
+	const { grid, gridState, gridTileMap, startTile, endTile, setGridState } = useGrid();
 
 	const [algorithm, setAlgorithm] = useState<AlgorithmType | undefined>();
 	const [steps, setSteps] = useState<AlgorithmStep[] | undefined>();
