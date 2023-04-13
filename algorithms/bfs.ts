@@ -1,7 +1,7 @@
 import { AlgorithmStep, GraphType } from "@/contexts/AlgorithmContext";
 import { GridTile } from "@/contexts/GridContext";
 
-export default function bfsSteps(
+export default function bfs(
 	grid: GridTile[][],
 	graph: GraphType,
 	start: GridTile,
@@ -12,7 +12,7 @@ export default function bfsSteps(
 	const queue = [start];
     const previous: Record<string, GridTile | null> = {[start.name]: null};
 
-    // Add starting empty grid point as first step[
+    // Add starting empty grid point as first step
 	let currStep = grid.flat().reduce<AlgorithmStep>((acc,tile) => ({...acc, [tile.name]: tile.type === "wall" ? "wall" : "unvisited"}), {})
 	steps.push(currStep);
 

@@ -52,11 +52,9 @@ export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	useEffect(() => {
         // Reset the Algorithm state when the gridstate changes, meaning that the grid has changed 
-        // And the algorithm and steps might not be the same anymore
-        if(gridState === "init") {
-            setAlgorithm(undefined)
+        // so the steps might not be the same anymore
+        if(gridState === "init")
             setSteps(undefined)
-        }
     }, [gridState]);
 
 	const calcSteps = () => {

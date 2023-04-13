@@ -72,9 +72,14 @@ export function useGridTile(row: number, column: number) {
 	};
 }
 
-export const GridProvider: FC<PropsWithChildren> = ({ children }) => {
-	const [height, setHeight] = useState(16); // TODO maybe different default value?
-	const [width, setWidth] = useState(20); // TODO
+type GridProviderProps = {
+    height: number;
+    width: number;
+}
+
+export const GridProvider: FC<PropsWithChildren<GridProviderProps>> = ({ children, height: initialHeight, width: initialWidth }) => {
+	const [height, setHeight] = useState(initialHeight);
+	const [width, setWidth] = useState(initialWidth);
 	const [gridState, setGridState] = useState<GridState>("init");
 	const [grid, setGrid] = useState<GridTile[][]>(() =>
 		createEmptyGrid(width, height)
