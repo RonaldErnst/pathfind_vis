@@ -1,30 +1,34 @@
-import { GraphType, GridTile } from "@/contexts/GridContext";
-import { PathFinderStep } from "@/contexts/PathFinderContext";
+import { AlgorithmStep, GraphType } from "@/contexts/AlgorithmContext";
+import { GridTile } from "@/contexts/GridContext";
 
-export default function bfs(graph: GraphType, start: GridTile, end: GridTile) {
-    const steps: PathFinderStep[] = [];
+export default function bfs(
+	grid: GridTile[][],
+	graph: GraphType,
+	start: GridTile,
+	end: GridTile
+) {
+	const steps: AlgorithmStep[] = [];
 
-    const visited = new Set(start.name);
-    const queue = [start.name];
+	const visited = new Set(start.name);
+	const queue = [start.name];
 
-    let currStep = initialGrid.map(row => row.map(col => col.type === "wall"? "wall" : "unvisited"));
-    steps.push([...currStep]);
+	let currStep = grid.map((row) =>
+		row.map((col) => (col.type === "wall" ? "wall" : "unvisited"))
+	);
+	steps.push([...currStep]);
 
-    currStep
+	while (queue.length > 0) {
+		let node = queue.shift()!;
 
-    while(queue.length > 0) {
-        let node = queue.shift()!;
+		let adjacentNodes = graph.get(node);
 
-        let adjacentNodes = graph.get(node);
+		adjacentNodes?.forEach((n) => {
+			if (visited.has(n)) return;
 
-        adjacentNodes?.forEach(n => {
-            if(visited.has(n))
-                return;
+			visited.add(n);
+			queue.push(n);
+		});
+	}
 
-            visited.add(n);
-            queue.push(n);
-        });
-    }
-
-    return steps;
+	return steps;
 }
