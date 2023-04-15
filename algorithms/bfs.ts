@@ -14,7 +14,6 @@ export default function bfs(
 
     // Add starting empty grid point as first step
 	let currStep = grid.flat().reduce<AlgorithmStep>((acc,tile) => ({...acc, [tile.name]: tile.type === "wall" ? "wall" : "unvisited"}), {})
-	steps.push(currStep);
 
 	while (queue.length > 0) {
 		let node = queue.shift()!;
