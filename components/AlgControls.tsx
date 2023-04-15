@@ -1,7 +1,7 @@
 import { useAlgorithm } from "@/contexts/AlgorithmContext";
 import { useGrid } from "@/contexts/GridContext";
-import { useState } from "react";
 import {
+	ArrowCounterclockwise,
 	PauseFill,
 	PlayFill,
 	SkipEndFill,
@@ -34,24 +34,58 @@ export default function AlgControls() {
 }
 
 const SimulationControls = () => {
-	const { steps, currStep, isRunning, stepForward, stepBackward } = useAlgorithm();
+	const {
+		steps,
+		currStep,
+		isRunning,
+		stepForward,
+		stepBackward,
+		runAnimation,
+		stopAnimation,
+        resetAlgorithm
+	} = useAlgorithm();
 
-    const handleStepForward = () => {
-        stepForward();
+	const handleStepForward = () => {
+		stepForward();
+	};
+
+	const handleStepBackward = () => {
+		stepBackward();
+	};
+
+	const handlePausePlay = () => {
+		if (isRunning) stopAnimation();
+		else runAnimation();
+	};
+
+    const handleReset = () => {
+        resetAlgorithm();
     }
 
-    const handleStepBackward = () => {
-        stepBackward();
-    }
+    const reachedEnd = currStep !== undefined && steps !== undefined && currStep >= steps.length - 1;
+
+    console.log(currStep, reachedEnd, steps)
 
 	return (
 		<div className="flex flex-row justify-center items-center gap-8">
+			{currStep !== undefined && currStep > 0 ? (
+				<button onClick={handleReset}><ArrowCounterclockwise fill="white" className="w-8 h-8"/></button>
+			) : null}
 			<button disabled={currStep === 0} onClick={handleStepBackward}>
-				<SkipStartFill fill="white" className="w-10 h-10"/>
+				<SkipStartFill fill="white" className="w-10 h-10" />
 			</button>
-			<button>{isRunning ? <PauseFill fill="white" className="w-10 h-10"/> : <PlayFill fill="white" className="w-10 h-10"/>}</button>
-			<button disabled={currStep === steps?.length} onClick={handleStepForward}>
-				<SkipEndFill fill="white" className="w-10 h-10"/>
+			<button onClick={handlePausePlay} disabled={reachedEnd}>
+				{isRunning ? (
+					<PauseFill fill="white" className="w-10 h-10" />
+				) : (
+					<PlayFill fill={reachedEnd? "gray" : "white"} className="w-10 h-10" />
+				)}
+			</button>
+			<button
+				disabled={reachedEnd}
+				onClick={handleStepForward}
+			>
+				<SkipEndFill fill={reachedEnd? "gray" : "white"} className="w-10 h-10" />
 			</button>
 		</div>
 	);

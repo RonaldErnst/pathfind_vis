@@ -5,6 +5,7 @@ import {
 	FC,
 	PropsWithChildren,
 	SetStateAction,
+	useCallback,
 	useContext,
 	useEffect,
 	useState,
@@ -27,11 +28,14 @@ export type AlgorithmContextType = {
 	algorithm?: AlgorithmType;
 	steps?: AlgorithmStep[];
 	currStep?: number;
-	isRunning: boolean;
+    isRunning: boolean;
 	setAlgorithm: Dispatch<SetStateAction<AlgorithmType | undefined>>;
 	calcSteps: () => void;
     stepForward: () => void;
     stepBackward: () => void;
+    runAnimation: () => void;
+    stopAnimation: () => void;
+    resetAlgorithm: () => void;
 };
 
 export type GraphType = Map<string, Array<GridTile>>;
@@ -55,7 +59,16 @@ export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
 	);
 	const [steps, setSteps] = useState<AlgorithmStep[] | undefined>();
 	const [currStep, setCurrStep] = useState<number | undefined>();
-	const [isRunning, setIsRunning] = useState(false);
+	const [timeouts, setTimeouts] = useState<NodeJS.Timer[] | undefined>();
+    const [speed, setSpeed] = useState(100); // TODO set animation speed
+
+    const clearTimeouts = useCallback(() => {
+        timeouts?.forEach((timeoutId) => {
+            clearTimeout(timeoutId);
+        })
+
+        setTimeouts(undefined);
+    }, [timeouts]);
 
 	useEffect(() => {
 		// Reset the Algorithm state when the gridstate changes, meaning that the grid has changed
@@ -63,9 +76,9 @@ export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
 		if (gridState === "init") {
             setSteps(undefined);
             setCurrStep(undefined);
-            setIsRunning(false);
+            clearTimeouts();
         }
-	}, [gridState]);
+	}, [clearTimeouts, gridState]);
 
 	const calcSteps = () => {
 		if (algorithm === undefined)
@@ -94,6 +107,29 @@ export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
         })
     }
 
+    const runAnimation = () => {
+        if(steps === undefined || currStep === undefined)
+            return;
+
+        let timeoutIDs = steps.filter((_, i) => i > currStep).map((_, i) => {
+            const timeoutId = setTimeout(() => {
+                stepForward();
+            }, i * speed);
+
+            return timeoutId;
+        })
+
+        timeoutIDs.push(setTimeout(() => {
+            clearTimeouts();
+        }, (timeoutIDs.length - 1) * speed))
+
+        setTimeouts(timeoutIDs);
+    }
+
+    const stopAnimation = () => {
+        clearTimeouts();
+    }
+
     const stepBackward = () => {
         setCurrStep((step) => {
             if(step === undefined)
@@ -106,15 +142,23 @@ export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
         })
     }
 
+    const resetAlgorithm = () => {
+        clearTimeouts();
+        setCurrStep(0);
+    }
+
 	const value: AlgorithmContextType = {
 		algorithm,
 		steps,
 		currStep,
-		isRunning,
+		isRunning: timeouts !== undefined,
 		setAlgorithm,
 		calcSteps,
         stepForward,
-        stepBackward
+        stepBackward,
+        runAnimation,
+        stopAnimation,
+        resetAlgorithm
 	};
 
 	return (

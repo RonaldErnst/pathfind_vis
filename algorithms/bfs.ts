@@ -12,7 +12,7 @@ export default function bfs(
 	const queue = [start];
     const previous: Record<string, GridTile | null> = {[start.name]: null};
 
-    // Add starting empty grid point as first step
+    // empty grid as first step
 	let currStep = grid.flat().reduce<AlgorithmStep>((acc,tile) => ({...acc, [tile.name]: tile.type === "wall" ? "wall" : "unvisited"}), {})
 
 	while (queue.length > 0) {
