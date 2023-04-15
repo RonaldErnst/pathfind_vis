@@ -64,8 +64,6 @@ const SimulationControls = () => {
 
     const reachedEnd = currStep !== undefined && steps !== undefined && currStep >= steps.length - 1;
 
-    console.log(currStep, reachedEnd, steps)
-
 	return (
 		<div className="flex flex-row justify-center items-center gap-8">
 			{currStep !== undefined && currStep > 0 ? (
