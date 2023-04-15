@@ -52,7 +52,7 @@ export function useGridTile(row: number, column: number) {
 
 	if (ctx === null) throw new Error("Grid Context is not accessible here");
 
-	const { height, width, grid, setGridTileType, startTile, endTile } = ctx;
+	const { height, width, grid, setGridTileType, startTile, endTile, gridState } = ctx;
 
 	if (row < 0 || row >= height)
 		throw new Error("Cannot get grid tile, row is out of bounds: " + row);
@@ -65,6 +65,7 @@ export function useGridTile(row: number, column: number) {
 	const gridTile = grid[row][column];
 	return {
 		...gridTile,
+        gridState,
         isStart: startTile === undefined? false : startTile.row === row && startTile.column === column,
         isEnd: endTile === undefined? false : endTile.row === row && endTile.column === column,
 		setGridTileType: (type: GridTileType) =>

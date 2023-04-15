@@ -26,7 +26,6 @@ export default function bfs(
         steps.push(currStep);
 
         if(node.name === end.name){
-            previous[end.name] = node;
             currStep = {
                 ...currStep,
                 [node.name]: "visited"

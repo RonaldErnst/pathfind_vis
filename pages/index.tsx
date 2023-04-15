@@ -15,9 +15,7 @@ export default function Home() {
 					<div className="w-full h-full bg-slate-500 p-16">
 						<Grid />
 					</div>
-					<div className="absolute bottom-0 w-screen grid place-items-center">
-						<AlgControls />
-					</div>
+                    <AlgControls />
 				</AlgorithmProvider>
 			</GridProvider>
 		</main>

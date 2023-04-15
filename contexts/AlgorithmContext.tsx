@@ -13,10 +13,10 @@ import { GridTile, useGrid } from "./GridContext";
 
 export type GridTileColor =
 	| "unvisited"
-    | "queued"
+	| "queued"
 	| "visiting"
 	| "visited"
-    | "path"
+	| "path"
 	| "wall";
 
 export type AlgorithmStep = Record<string, GridTileColor>;
@@ -27,8 +27,11 @@ export type AlgorithmContextType = {
 	algorithm?: AlgorithmType;
 	steps?: AlgorithmStep[];
 	currStep?: number;
+	isRunning: boolean;
 	setAlgorithm: Dispatch<SetStateAction<AlgorithmType | undefined>>;
 	calcSteps: () => void;
+    stepForward: () => void;
+    stepBackward: () => void;
 };
 
 export type GraphType = Map<string, Array<GridTile>>;
@@ -45,17 +48,24 @@ export const useAlgorithm = () => {
 };
 
 export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
-	const { grid, gridState, gridTileMap, startTile, endTile, setGridState } = useGrid();
+	const { grid, gridState, startTile, endTile, setGridState } = useGrid();
 
-	const [algorithm, setAlgorithm] = useState<AlgorithmType | undefined>();
+	const [algorithm, setAlgorithm] = useState<AlgorithmType | undefined>(
+		"bfs"
+	);
 	const [steps, setSteps] = useState<AlgorithmStep[] | undefined>();
+	const [currStep, setCurrStep] = useState<number | undefined>();
+	const [isRunning, setIsRunning] = useState(false);
 
 	useEffect(() => {
-        // Reset the Algorithm state when the gridstate changes, meaning that the grid has changed 
-        // so the steps might not be the same anymore
-        if(gridState === "init")
-            setSteps(undefined)
-    }, [gridState]);
+		// Reset the Algorithm state when the gridstate changes, meaning that the grid has changed
+		// so the steps might not be the same anymore
+		if (gridState === "init") {
+            setSteps(undefined);
+            setCurrStep(undefined);
+            setIsRunning(false);
+        }
+	}, [gridState]);
 
 	const calcSteps = () => {
 		if (algorithm === undefined)
@@ -69,13 +79,42 @@ export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
 
 		const newSteps = calcAlgSteps(algorithm, grid, startTile, endTile);
 		setSteps(newSteps);
+        setCurrStep(0);
 	};
+
+    const stepForward = () => {
+        setCurrStep((step) => {
+            if(step === undefined)
+                return step;
+
+            if(steps !== undefined && step >= steps.length)
+                return step;
+
+            return step + 1;
+        })
+    }
+
+    const stepBackward = () => {
+        setCurrStep((step) => {
+            if(step === undefined)
+                return step;
+
+            if(steps !== undefined && step <= 0)
+                return step;
+
+            return step - 1;
+        })
+    }
 
 	const value: AlgorithmContextType = {
 		algorithm,
 		steps,
+		currStep,
+		isRunning,
 		setAlgorithm,
 		calcSteps,
+        stepForward,
+        stepBackward
 	};
 
 	return (

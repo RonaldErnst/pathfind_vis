@@ -5,6 +5,14 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx}',
     './app/**/*.{js,ts,jsx,tsx}',
   ],
+  safelist: [
+    "bg-amber-400",
+    "bg-slate-400",
+    "bg-slate-200",
+    "bg-cyan-400",
+    "bg-emerald-400",
+    "bg-slate-800"
+  ],
   theme: {
     extend: {
       backgroundImage: {
