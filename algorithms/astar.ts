@@ -7,6 +7,7 @@ export default function astar(
 	start: GridTile,
 	end: GridTile
 ) {
+    // TODO
 	const steps: AlgorithmStep[] = [];
 	return steps;
 }
