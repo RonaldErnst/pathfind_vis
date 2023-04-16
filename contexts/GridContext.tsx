@@ -1,5 +1,5 @@
 import createEmptyGrid from "@/utils/createEmptyGrid";
-import getGridTile from "@/utils/getGridTile";
+import createEmptyWeightMap from "@/utils/createEmptyWeightMap";
 import {
 	createContext,
 	Dispatch,
@@ -30,11 +30,14 @@ type GridContextType = {
 	gridState: GridState;
 	grid: GridTile[][];
     gridTileMap: Record<string, GridTile>,
+    weightMap: Record<string, number>,
     startTile?: GridTile;
     endTile?: GridTile;
 	setGrid: Dispatch<SetStateAction<GridTile[][]>>;
 	setGridTileType: (row: number, column: number, type: GridTileType) => void;
 	setGridState: Dispatch<SetStateAction<GridState>>;
+    moveStartTile: (row: number, column: number) => void;
+    moveEndTile: (row: number, column: number) => void;
 };
 
 const GridContext = createContext<GridContextType | null>(null);
@@ -85,6 +88,7 @@ export const GridProvider: FC<PropsWithChildren<GridProviderProps>> = ({ childre
 	const [grid, setGrid] = useState<GridTile[][]>(() =>
 		createEmptyGrid(width, height)
 	);
+    const [weightMap, setWeightMap] = useState<Record<string, number>>(() => createEmptyWeightMap(grid)); // TODO see if use state works this way
     const [startTilePos, setStartTilePos] = useState<GridTilePosition | undefined>({row: 0, column: 0});
     const [endTilePos, setEndTilePos] = useState<GridTilePosition | undefined>({row: height - 1, column: width - 1});
 
@@ -106,6 +110,14 @@ export const GridProvider: FC<PropsWithChildren<GridProviderProps>> = ({ childre
 		setGridState("init"); // Grid got changed, cancel Algorithm
 	};
 
+    const moveStartTile = (row: number, column: number) => {
+        setStartTilePos({row, column});
+    }
+
+    const moveEndTile = (row: number, column: number) => {
+        setEndTilePos({row, column});
+    }
+
 	// TODO functions to generate new grid
 
 	const value: GridContextType = {
@@ -113,12 +125,15 @@ export const GridProvider: FC<PropsWithChildren<GridProviderProps>> = ({ childre
 		width,
 		gridState,
 		grid,
+        weightMap,
         gridTileMap,
         startTile,
         endTile,
 		setGridTileType,
 		setGrid,
 		setGridState,
+        moveStartTile,
+        moveEndTile
 	};
 
 	return (
