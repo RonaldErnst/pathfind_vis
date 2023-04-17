@@ -8,6 +8,7 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
+	useMemo,
 	useState,
 } from "react";
 import { GridTile, useGrid } from "./GridContext";
@@ -24,12 +25,16 @@ export type AlgorithmStep = Record<string, GridTileColor>;
 
 export type AlgorithmType = "bfs" | "dfs" | "dijkstra" | "astar";
 
+export type SpeedType = 0.5 | 1 | 1.5 | 2 | 3 | 5;
+
 export type AlgorithmContextType = {
 	algorithm?: AlgorithmType;
 	steps?: AlgorithmStep[];
 	currStep?: number;
+    speed: SpeedType;
     isRunning: boolean;
 	setAlgorithm: Dispatch<SetStateAction<AlgorithmType | undefined>>;
+    setSpeed: Dispatch<SetStateAction<SpeedType>>;
 	calcSteps: () => void;
     stepForward: () => void;
     stepBackward: () => void;
@@ -60,7 +65,8 @@ export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [steps, setSteps] = useState<AlgorithmStep[] | undefined>();
 	const [currStep, setCurrStep] = useState<number | undefined>();
 	const [timeouts, setTimeouts] = useState<NodeJS.Timer[] | undefined>();
-    const [speed, setSpeed] = useState(100); // TODO set animation speed
+    const [speed, setSpeed] = useState<SpeedType>(1);
+    const timeoutLength = useMemo(() => (1 / speed) * 100, [speed]);
 
     const clearTimeouts = useCallback(() => {
         timeouts?.forEach((timeoutId) => {
@@ -114,14 +120,14 @@ export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
         let timeoutIDs = steps.filter((_, i) => i > currStep).map((_, i) => {
             const timeoutId = setTimeout(() => {
                 stepForward();
-            }, i * speed);
+            }, i * timeoutLength);
 
             return timeoutId;
         })
 
         timeoutIDs.push(setTimeout(() => {
             clearTimeouts();
-        }, (timeoutIDs.length - 1) * speed))
+        }, (timeoutIDs.length - 1) * timeoutLength))
 
         setTimeouts(timeoutIDs);
     }
@@ -151,8 +157,10 @@ export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
 		algorithm,
 		steps,
 		currStep,
+        speed,
 		isRunning: timeouts !== undefined,
 		setAlgorithm,
+        setSpeed,
 		calcSteps,
         stepForward,
         stepBackward,

@@ -1,11 +1,14 @@
-import { useAlgorithm } from "@/contexts/AlgorithmContext";
+import { SpeedType, useAlgorithm } from "@/contexts/AlgorithmContext";
 import { useGrid } from "@/contexts/GridContext";
+import { FC, useEffect, useState } from "react";
 import {
 	ArrowCounterclockwise,
+	ChevronUp,
 	PauseFill,
 	PlayFill,
 	SkipEndFill,
 	SkipStartFill,
+	Speedometer2,
 } from "react-bootstrap-icons";
 
 export default function AlgControls() {
@@ -42,7 +45,7 @@ const SimulationControls = () => {
 		stepBackward,
 		runAnimation,
 		stopAnimation,
-        resetAlgorithm
+		resetAlgorithm,
 	} = useAlgorithm();
 
 	const handleStepForward = () => {
@@ -58,33 +61,99 @@ const SimulationControls = () => {
 		else runAnimation();
 	};
 
-    const handleReset = () => {
-        resetAlgorithm();
-    }
+	const handleReset = () => {
+		resetAlgorithm();
+	};
 
-    const reachedEnd = currStep !== undefined && steps !== undefined && currStep >= steps.length - 1;
+	const reachedEnd =
+		currStep !== undefined &&
+		steps !== undefined &&
+		currStep >= steps.length - 1;
 
 	return (
-		<div className="flex flex-row justify-center items-center gap-8">
-			{currStep !== undefined && currStep > 0 ? (
-				<button onClick={handleReset}><ArrowCounterclockwise fill="white" className="w-8 h-8"/></button>
-			) : null}
-			<button disabled={currStep === 0} onClick={handleStepBackward}>
-				<SkipStartFill fill={currStep === 0? "gray" : "white"} className="w-10 h-10" />
-			</button>
-			<button onClick={handlePausePlay} disabled={reachedEnd}>
-				{isRunning ? (
-					<PauseFill fill="white" className="w-10 h-10" />
-				) : (
-					<PlayFill fill={reachedEnd? "gray" : "white"} className="w-10 h-10" />
-				)}
-			</button>
-			<button
-				disabled={reachedEnd}
-				onClick={handleStepForward}
+		<div className="">
+			<div className="flex flex-row justify-center items-center gap-8">
+				{currStep !== undefined && currStep > 0 ? (
+					<button onClick={handleReset}>
+						<ArrowCounterclockwise
+							fill="white"
+							className="w-8 h-8"
+						/>
+					</button>
+				) : null}
+				<button disabled={currStep === 0} onClick={handleStepBackward}>
+					<SkipStartFill
+						fill={currStep === 0 ? "gray" : "white"}
+						className="w-10 h-10"
+					/>
+				</button>
+				<button onClick={handlePausePlay} disabled={reachedEnd}>
+					{isRunning ? (
+						<PauseFill fill="white" className="w-10 h-10" />
+					) : (
+						<PlayFill
+							fill={reachedEnd ? "gray" : "white"}
+							className="w-10 h-10"
+						/>
+					)}
+				</button>
+				<button disabled={reachedEnd} onClick={handleStepForward}>
+					<SkipEndFill
+						fill={reachedEnd ? "gray" : "white"}
+						className="w-10 h-10"
+					/>
+				</button>
+				<SpeedControl />
+			</div>
+		</div>
+	);
+};
+
+const SpeedControl: FC = () => {
+	const { speed, setSpeed } = useAlgorithm();
+	const [isOpen, setIsOpen] = useState(false);
+	const speedOptions: SpeedType[] = [0.5, 1, 1.5, 2, 3, 5];
+
+    useEffect(() => {
+        console.log(isOpen)
+    }, [isOpen])
+
+	return (
+		<div
+			className={`relative text-xl text-white font-semibold `}
+            tabIndex={0}
+            onBlur={() => setIsOpen(false)}
+		>
+            <div
+                className={`flex justify-center items-center gap-2 p-1 rounded-md hover:bg-slate-800 ${
+                    isOpen ? "bg-slate-800" : ""
+                }`}
+                onClick={() => setIsOpen((open) => !open)}
+            >
+                <Speedometer2 fill="white" className="w-6 h-6" />
+                <span className="text-right w-12">{speed} x</span>
+                <ChevronUp fill="white" size={15} />
+            </div>
+			<div
+				className={`${
+					isOpen ? "block" : "hidden"
+				} absolute bg-slate-800 rounded-md right-0`}
+				style={{
+					bottom: "calc(100% + 0.5rem)",
+				}}
 			>
-				<SkipEndFill fill={reachedEnd? "gray" : "white"} className="w-10 h-10" />
-			</button>
+				{speedOptions.map((option) => {
+					return (
+						<div key={option} className={`${speed == option? "bg-slate-600" : ""} px-4 py-2 my-2 text-right hover:bg-slate-500`}
+                            onClick={() => {
+                                setIsOpen(false);
+                                setSpeed(option);
+                            }} >
+							{option} x
+						</div>
+					);
+				})}
+			</div>
 		</div>
 	);
 };
