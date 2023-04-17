@@ -21,29 +21,13 @@ type DragDropItem = {
 export default function Grid() {
 	const { width, height, grid } = useGrid();
 
-	/* 
-    <div
-        style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${width}, minmax(16px, 1fr))`,
-            gridTemplateRows: `repeat(${height}, minmax(16px, 1fr))`,
-        }}
-        className="w-full h-full bg-slate-400 justify-center"
-    >
-        {grid.flat().map(({ row, column }, i) => {
-            return <GridTile key={i} row={row} column={column} />;
-        })}
-    </div> 
-    */
-
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<div className="flex justify-center items-center h-screen bg-slate-400">
 				<div
-					className="grid justify-items-center align-items-center w-full h-full box-border"
+					className="grid place-items-center w-full h-full box-border"
 					style={{
-						gridTemplateColumns: `repeat(${width}, 1fr)`,
-						gridTemplateRows: `repeat(${height}, 1fr)`,
+						gridTemplateColumns: `repeat(${width}, minmax(32px, 1fr))`
 					}}
 				>
 					{grid.flat().map(({ row, column }, i) => {
@@ -76,8 +60,9 @@ function GridTile({ row, column }: GridTilePosition) {
 	});
 
 	const handleDrop = (item: DragDropItem) => { // TODO test
-		if (item.isStart) moveStartTile(item.row, item.column);
-		else moveEndTile(item.row, item.column);
+        console.log(item)
+		if (item.isStart) moveStartTile(row, column);
+		else moveEndTile(row, column);
 	};
 
 	const handleOnClick = () => {
@@ -113,15 +98,9 @@ function GridTile({ row, column }: GridTilePosition) {
 
 	if (!isStart && !isEnd) color += " hover:bg-slate-400";
 
-	const squareStyles: CSSProperties = { // TODO fix this...
-		width: `calc((100% - ${width - 1}px) / ${width})`,
-		paddingBottom: `calc((100% - ${width - 1}px) / ${width})`,
-	};
-
 	return (
 		<div
-			className={`border border-blue-300 grid place-items-center p-2 ${color} bg- `}
-			style={squareStyles}
+			className={`border border-blue-300 grid place-items-center p-2 ${color} w-full aspect-square`}
 			onClick={handleOnClick}
 			ref={drop}
 		>
