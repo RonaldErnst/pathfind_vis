@@ -70,7 +70,7 @@ const SimulationControls = () => {
 				<button onClick={handleReset}><ArrowCounterclockwise fill="white" className="w-8 h-8"/></button>
 			) : null}
 			<button disabled={currStep === 0} onClick={handleStepBackward}>
-				<SkipStartFill fill="white" className="w-10 h-10" />
+				<SkipStartFill fill={currStep === 0? "gray" : "white"} className="w-10 h-10" />
 			</button>
 			<button onClick={handlePausePlay} disabled={reachedEnd}>
 				{isRunning ? (
