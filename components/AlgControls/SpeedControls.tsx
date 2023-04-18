@@ -12,9 +12,6 @@ const SpeedControl = () => {
 			className={`relative text-xl text-white font-semibold `}
 			tabIndex={0}
 			onBlur={() => setIsOpen(false)}
-            style={{
-                filter: "drop-shadow(0 4px 4px rgb(0 0 0 / 0.6))"
-            }}
 		>
 			<div
 				className={`flex justify-center items-center gap-2 p-1 rounded-md hover:bg-slate-800 ${

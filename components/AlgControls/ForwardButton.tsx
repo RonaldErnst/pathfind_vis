@@ -4,10 +4,10 @@ import { SkipEndFill } from "react-bootstrap-icons";
 const ForwardButton = () => {
 	const { stepForward, stopAnimation, currStep, steps } = useAlgorithm();
 
-    const handleClick = () => {
-        stopAnimation();
-        stepForward();
-    }
+	const handleClick = () => {
+		stopAnimation();
+		stepForward();
+	};
 
 	const reachedEnd =
 		currStep !== undefined &&
@@ -19,9 +19,6 @@ const ForwardButton = () => {
 			<SkipEndFill
 				fill={reachedEnd ? "gray" : "white"}
 				className="w-10 h-10"
-                style={{
-                    filter: "drop-shadow(0 4px 4px rgb(0 0 0 / 0.6))"
-                }}
 			/>
 		</button>
 	);
