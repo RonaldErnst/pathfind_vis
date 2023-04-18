@@ -46,11 +46,12 @@ export default function bfs(
                 [n.name]: "queued"
             }
 		});
-
+        
         currStep = {
             ...currStep,
             [node.name]: "visited"
         }
+
         steps.push(currStep);
 	}
 

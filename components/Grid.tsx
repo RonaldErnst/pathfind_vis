@@ -1,13 +1,12 @@
 import { useAlgorithm } from "@/contexts/AlgorithmContext";
 import {
-	GridState,
 	GridTilePosition,
 	GridTileType,
 	useGrid,
 	useGridTile,
 } from "@/contexts/GridContext";
 import getAlgStepColor from "@/utils/getAlgStepColor";
-import { CSSProperties, FC } from "react";
+import { FC, useCallback, useMemo } from "react";
 import { Bullseye, CaretRightFill } from "react-bootstrap-icons";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -19,7 +18,7 @@ type DragDropItem = {
 };
 
 export default function Grid() {
-	const { width, height, grid } = useGrid();
+	const { width, grid } = useGrid();
 
 	return (
 		<DndProvider backend={HTML5Backend}>
@@ -27,7 +26,7 @@ export default function Grid() {
 				<div
 					className="grid place-items-center w-full h-full box-border"
 					style={{
-						gridTemplateColumns: `repeat(${width}, minmax(32px, 1fr))`
+						gridTemplateColumns: `repeat(${width}, minmax(32px, 1fr))`,
 					}}
 				>
 					{grid.flat().map(({ row, column }, i) => {
@@ -40,9 +39,11 @@ export default function Grid() {
 }
 
 function GridTile({ row, column }: GridTilePosition) {
-	const { width, moveStartTile, moveEndTile } = useGrid();
-	const { name, type, setGridTileType, isStart, isEnd, gridState } =
-		useGridTile(row, column);
+	const { moveStartTile, moveEndTile } = useGrid();
+	const { name, type, setGridTileType, isStart, isEnd } = useGridTile(
+		row,
+		column
+	);
 	const { steps, currStep } = useAlgorithm();
 
 	const [{ isOver, canDrop }, drop] = useDrop<
@@ -59,8 +60,7 @@ function GridTile({ row, column }: GridTilePosition) {
 		}),
 	});
 
-	const handleDrop = (item: DragDropItem) => { // TODO test
-        console.log(item)
+	const handleDrop = (item: DragDropItem) => {
 		if (item.isStart) moveStartTile(row, column);
 		else moveEndTile(row, column);
 	};
@@ -73,34 +73,30 @@ function GridTile({ row, column }: GridTilePosition) {
 		setGridTileType(newType);
 	};
 
-	const getGridColor = (
-		gridState: GridState,
-		gridTileType: GridTileType,
-		isOver: boolean,
-		canDrop: boolean
-	) => {
+	const getGridColor = useCallback(() => {
+		let color;
 		if (!isOver && !canDrop) {
-			if (gridState === "init") {
-				return getDefaultGridColor(gridTileType);
-			} else {
-				if (steps !== undefined && currStep !== undefined)
-					return getAlgStepColor(steps[currStep][name]);
-			}
-		} else {
-			if (isOver && !canDrop) return "bg-red-500";
-			else if (!isOver && canDrop)
-				return getDefaultGridColor(gridTileType);
-			else return "bg-emerald-400";
+			if (steps !== undefined && currStep !== undefined)
+				color = getAlgStepColor(steps[currStep][name]);
+			else color = getDefaultGridColor(type);
+		} else if (isOver && !canDrop) color = "bg-red-500";
+		else if (!isOver && canDrop) color = getDefaultGridColor(type);
+		else color = "bg-emerald-400";
+
+		if (!isStart && !isEnd) {
+			if (type === "path") color += " hover:bg-slate-400";
+			else color += " hover:bg-slate-600";
 		}
-	};
 
-	let color = getGridColor(gridState, type, isOver, canDrop);
-
-	if (!isStart && !isEnd) color += " hover:bg-slate-400";
+		return color;
+	}, [canDrop, currStep, isEnd, isOver, isStart, name, steps, type]);
 
 	return (
 		<div
-			className={`border border-blue-300 grid place-items-center p-2 ${color} w-full aspect-square`}
+			className={`border grid place-items-center p-2 w-full aspect-square border-blue-300 ${useMemo(
+				() => getGridColor(),
+				[getGridColor]
+			)}`}
 			onClick={handleOnClick}
 			ref={drop}
 		>

@@ -11,8 +11,6 @@ import {
 	useState,
 } from "react";
 
-export type GridState = "init" | "algorithm";
-
 export type GridTilePosition = {
 	row: number;
 	column: number;
@@ -27,15 +25,16 @@ export type GridTile = GridTilePosition & {
 type GridContextType = {
 	height: number;
 	width: number;
-	gridState: GridState;
 	grid: GridTile[][];
     gridTileMap: Record<string, GridTile>,
     weightMap: Record<string, number>,
-    startTile?: GridTile;
-    endTile?: GridTile;
+    startTilePos: GridTilePosition;
+    endTilePos: GridTilePosition;
+    startTile: GridTile;
+    endTile: GridTile;
 	setGrid: Dispatch<SetStateAction<GridTile[][]>>;
 	setGridTileType: (row: number, column: number, type: GridTileType) => void;
-	setGridState: Dispatch<SetStateAction<GridState>>;
+    setGridTileWeight: (gridtile: string, weight: number) => void;
     moveStartTile: (row: number, column: number) => void;
     moveEndTile: (row: number, column: number) => void;
 };
@@ -55,7 +54,7 @@ export function useGridTile(row: number, column: number) {
 
 	if (ctx === null) throw new Error("Grid Context is not accessible here");
 
-	const { height, width, grid, setGridTileType, startTile, endTile, gridState } = ctx;
+	const { height, width, grid, setGridTileType, startTile, endTile } = ctx;
 
 	if (row < 0 || row >= height)
 		throw new Error("Cannot get grid tile, row is out of bounds: " + row);
@@ -68,7 +67,6 @@ export function useGridTile(row: number, column: number) {
 	const gridTile = grid[row][column];
 	return {
 		...gridTile,
-        gridState,
         isStart: startTile === undefined? false : startTile.row === row && startTile.column === column,
         isEnd: endTile === undefined? false : endTile.row === row && endTile.column === column,
 		setGridTileType: (type: GridTileType) =>
@@ -84,16 +82,15 @@ type GridProviderProps = {
 export const GridProvider: FC<PropsWithChildren<GridProviderProps>> = ({ children, height: initialHeight, width: initialWidth }) => {
 	const [height, setHeight] = useState(initialHeight);
 	const [width, setWidth] = useState(initialWidth);
-	const [gridState, setGridState] = useState<GridState>("init");
 	const [grid, setGrid] = useState<GridTile[][]>(() =>
 		createEmptyGrid(width, height)
 	);
     const [weightMap, setWeightMap] = useState<Record<string, number>>(() => createEmptyWeightMap(grid)); // TODO see if use state works this way
-    const [startTilePos, setStartTilePos] = useState<GridTilePosition | undefined>({row: 0, column: 0});
-    const [endTilePos, setEndTilePos] = useState<GridTilePosition | undefined>({row: height - 1, column: width - 1});
+    const [startTilePos, setStartTilePos] = useState<GridTilePosition>({row: 0, column: 0});
+    const [endTilePos, setEndTilePos] = useState<GridTilePosition>({row: height - 1, column: width - 1});
 
-    const startTile = useMemo(() => startTilePos === undefined? undefined : grid[startTilePos?.row][startTilePos?.column], [startTilePos, grid]);
-    const endTile = useMemo(() => endTilePos === undefined? undefined : grid[endTilePos?.row][endTilePos?.column], [endTilePos, grid]);
+    const startTile = useMemo(() => grid[startTilePos?.row][startTilePos?.column], [startTilePos, grid]);
+    const endTile = useMemo(() => grid[endTilePos?.row][endTilePos?.column], [endTilePos, grid]);
     const gridTileMap = useMemo(() => grid.flat().reduce<Record<string, GridTile>>((acc, tile) => ({...acc, [tile.name]: tile}), {}), [grid]);
 
 	const setGridTileType = (
@@ -106,8 +103,6 @@ export const GridProvider: FC<PropsWithChildren<GridProviderProps>> = ({ childre
 
 			return [...currGrid];
 		});
-
-		setGridState("init"); // Grid got changed, cancel Algorithm
 	};
 
     const moveStartTile = (row: number, column: number) => {
@@ -118,20 +113,28 @@ export const GridProvider: FC<PropsWithChildren<GridProviderProps>> = ({ childre
         setEndTilePos({row, column});
     }
 
+    const setGridTileWeight = (gridtile: string, weight: number) => {
+        setWeightMap((currMap) => {
+            currMap[gridtile] = weight;
+            return {...currMap};
+        });
+    }
+
 	// TODO functions to generate new grid
 
 	const value: GridContextType = {
 		height,
 		width,
-		gridState,
 		grid,
         weightMap,
         gridTileMap,
+        startTilePos,
+        endTilePos,
         startTile,
         endTile,
-		setGridTileType,
 		setGrid,
-		setGridState,
+		setGridTileType,
+		setGridTileWeight,
         moveStartTile,
         moveEndTile
 	};
