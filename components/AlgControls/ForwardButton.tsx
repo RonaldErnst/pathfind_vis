@@ -19,6 +19,9 @@ const ForwardButton = () => {
 			<SkipEndFill
 				fill={reachedEnd ? "gray" : "white"}
 				className="w-10 h-10"
+                style={{
+                    filter: "drop-shadow(0 4px 4px rgb(0 0 0 / 0.6))"
+                }}
 			/>
 		</button>
 	);
