@@ -10,7 +10,7 @@ const CalcStepsButton = () => {
 			className={`p-2 rounded-md text-lg font-semibold ${
 				algorithm === undefined
 					? "bg-slate-400 text-slate-600 hover:bg-slate-300"
-					: "bg-emerald-600 text-slate-200 hover:bg-emerald-500"
+					: "bg-sky-600 text-slate-200 hover:bg-sky-500"
 			}`}
 			style={{
 				filter: "drop-shadow(0 4px 4px rgb(0 0 0 / 0.6))",

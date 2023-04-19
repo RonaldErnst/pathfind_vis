@@ -1,15 +1,15 @@
 import calcAlgSteps from "@/utils/calcAlgSteps";
 import {
-	createContext,
-	Dispatch,
-	FC,
-	PropsWithChildren,
-	SetStateAction,
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
+    createContext,
+    Dispatch,
+    FC,
+    PropsWithChildren,
+    SetStateAction,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
 } from "react";
 import { GridTile, useGrid } from "./GridContext";
 
@@ -63,9 +63,7 @@ export const AlgorithmProvider: FC<PropsWithChildren> = ({ children }) => {
 	const { grid, startTile, endTile, startTilePos, endTilePos } = useGrid();
 	const [gridState, setGridState] = useState<GridState>("init");
 
-	const [algorithm, setAlgorithm] = useState<AlgorithmType | undefined>(
-		"bfs"
-	);
+	const [algorithm, setAlgorithm] = useState<AlgorithmType | undefined>();
 	const [steps, setSteps] = useState<AlgorithmStep[] | undefined>();
 	const [currStep, setCurrStep] = useState<number | undefined>();
 	const [speed, setSpeed] = useState<SpeedType>(1);
